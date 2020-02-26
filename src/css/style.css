@@ -1,21 +1,60 @@
-body {
-    font-family: 'Roboto';
+/* body {
+    font-family: 'Yanone Kaffeesatz';
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
 }
-.map__ballon_top {
+#map {
+    width: 100%;
+    height: 85%;
+} */
+html, body {
+    font-family: 'Yanone Kaffeesatz';
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+#map {
+    width: 100%;
+    height: 100%;
+}
+.popover {
+    display: block;
+}
+.popover-title {
     background: #F46600;
     color: white;
+    font-size: 16px;
+}
+.popover .close {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    font-size: 40px;
+    color: white;
+    opacity: unset;
+}
+.btn {
+    margin-top: 10px;
 }
 
-.fa-map-marker-alt {
+/* .map__ballon_top {
+    background: #F46600;
+    color: white;
+} */
+
+.popover-title .fas {
     color: white;
     font-size: 10px;
 }
 
-.title {
+/* .title {
     margin: 0;
     font-size: 16px;
     display: inline-block;
-}
+} */
 
 .map__ballon_reviews {
     overflow: auto;
@@ -37,7 +76,7 @@ body {
 }
 
 .item_text {
-    color: #A2A2A2;
+    color: #3B3B3B;
     font-size: 12px;
 }
 
@@ -48,7 +87,7 @@ body {
 .bottom_text {
     color: #F46600;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 18px;
     text-transform: uppercase;  
 }
 
@@ -64,4 +103,5 @@ body {
     padding: 2%;
     border: #ef7f1a;
     cursor: pointer;
+    border-radius: 10%;
 }
