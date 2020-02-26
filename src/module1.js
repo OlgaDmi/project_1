@@ -11,30 +11,30 @@ function mapBuild() {
          balloonContent: [
             '<div class="map__baloon">',
             '<div class="map__ballon_top">',
-            '<div class="title">Адрес</div>',
-            '<button type="button" class="close">✖</button>',
+            '<div class="title"><i class="fas fa-map-marker-alt"></i>Адрес</div>',
             '</div>',
             '<div class="map__ballon_reviews">',
-            '<div class="map__ballon_reviews_item">',
-            '<div class="map__ballon_reviews_item_name">Оля</div>',
-            '<div class="map__ballon_reviews_place">Шоколадница</div>',
-            '<div class="map__ballon_reviews_text">Все плохо</div>',
+            '<div class="item">',
+            '<div class="item_name">Оля</div>',
+            '<div class="item_place">Шоколадница</div>',
+            '<div class="item_text">Все плохо</div>',
             '</div>',
             '</div>',
-            '<div class="map__ballon_form">',
-            '<form>',
-            '<input class="" type="text" id="" name="" value="" placeholder="Ваше имя">',
-            '<input class="" type="text" id="" name="" value="" placeholder="Укажите место">',
-            '<input class="" type="text" id="" name="" value="" placeholder="Поделитесь впечатлениями">',
-            '<button id="" type="submit" class="">Добавить</button>',
+            '<div class="map__ballon_bottom">',
+            '<div class="bottom_text">Ваш отзыв</div>',
+            '<form class="map__ballon_form">',
+            '<input type="text" id="" name="" value="" placeholder="Ваше имя">',
+            '<input type="text" id="" name="" value="" placeholder="Укажите место">',
+            '<input type="text" id="" name="" value="" placeholder="Поделитесь впечатлениями">',
+            '<button id="" type="submit">Добавить</button>',
             '</form>',
             '</div>',
             '</div>'
          ].join('')
       },
       {
-         preset: 'islands#icon',
-         iconColor: '#0095b6'
+         preset: 'default#image',
+         iconColor: '#7109AA'
       }
      );
 
