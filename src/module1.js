@@ -1,50 +1,4 @@
 function mapBuild() {
-   // ymaps.ready(init);
-
-   // function init(){
-   //    let myMap = new ymaps.Map("map", {
-   //       center: [59.93181443, 30.36136798],
-   //       zoom: 16,
-   //       controls: ['zoomControl', 'fullscreenControl']
-   //    });
-   //    let placeMark = new ymaps.Placemark([59.932482, 30.363550], {
-   //       balloonHeader: [            
-   //          '<div class="map__ballon_top">',
-   //          '<div class="title"><i class="fas fa-map-marker-alt"></i>Адрес</div>',
-   //          '</div>'
-   //       ].join(''),
-   //       balloonContent: [
-   //          '<div class="map__baloon">',
-   //          '<div class="map__ballon_reviews">',
-   //          '<div class="item">',
-   //          '<div class="item_name">Оля</div>',
-   //          '<div class="item_place">Шоколадница</div>',
-   //          '<div class="item_text">Все плохо</div>',
-   //          '</div>',
-   //          '</div>',
-   //          '<div class="map__ballon_bottom">',
-   //          '<div class="bottom_text">Ваш отзыв</div>',
-   //          '<form class="map__ballon_form">',
-   //          '<input type="text" id="" name="" value="" placeholder="Ваше имя">',
-   //          '<input type="text" id="" name="" value="" placeholder="Укажите место">',
-   //          '<input type="text" id="" name="" value="" placeholder="Поделитесь впечатлениями">',
-   //          '<button id="" type="submit">Добавить</button>',
-   //          '</form>',
-   //          '</div>',
-   //          '</div>'
-   //       ].join('')
-   //    },
-   //    {
-   //       preset: 'default#image',
-   //       iconColor: '#7109AA'
-   //    }
-   //   );
-
-   //   myMap.geoObjects.add(placeMark);
-
-
-   
-   // }
    ymaps.ready(function () {
       // Создание экземпляра карты и его привязка к созданному контейнеру.
       var myMap = new ymaps.Map('map', {
@@ -176,23 +130,44 @@ function mapBuild() {
   
           // Создание вложенного макета содержимого балуна.
           MyBalloonContentLayout = ymaps.templateLayoutFactory.createClass(
-              '<h3 class="popover-title"><i class="fas fa-map-marker-alt"></i>$[properties.balloonHeader]</h3>' +
-                  '<div class="popover-content">$[properties.balloonContent]</div>' +
-                  '<div class="popover-content">$[properties.balloonContent2]</div>'
+              '<h3 class="popover-title"><i class="fa fa-small fa-map-marker" aria-hidden="true"></i>&#8195$[properties.balloonHeader]</h3>' +
+                '<div class="reviews">' +
+                    '<div class="reviews__item">'+
+                        '<div class="reviews__item_name"><b>$[properties.reviews__item_name]</b> $[properties.reviews__item_place] $[properties.date]</div>'+
+                        '<div class="reviews__item_text">$[properties.reviews__item_text]</div>' +
+                    '</div>'+
+                '</div>'+
+                '<div class="bottom">' +
+                '<div class="bottom__text">Ваш отзыв</div>' +
+                '<form class="bottom__form">' +
+                '<input type="text" id="name" value="" placeholder="Ваше имя">' +
+                '<input type="text" id="place" value="" placeholder="Укажите место">' +
+                '<input type="text" id="comment" value="" placeholder="Поделитесь впечатлениями">' +
+                '<button id="add_rewiew" type="submit">Добавить</button>' +
+                '</form>' +
+                '</div>'
           ),
+
+          MyIconContentLayout = ymaps.templateLayoutFactory.createClass(
+            '<i class="fa fa-big fa-map-marker" aria-hidden="true"></i>'
+            ),
   
           // Создание метки с пользовательским макетом балуна.
           myPlacemark = window.myPlacemark = new ymaps.Placemark(myMap.getCenter(), {
               balloonHeader: 'Некий адрес',
-              balloonContent: 'Контент балуна',
-              balloonContent2: 'sdsadaa'
+              reviews__item_name: 'Сергей',
+              reviews__item_place: 'Шоколадница',
+              date: '27.02.2020',
+              reviews__item_text: 'Все печально'
           },
           {
               balloonShadow: false,
               balloonLayout: MyBalloonLayout,
               balloonContentLayout: MyBalloonContentLayout,
               balloonPanelMaxMapArea: 0,
-              iconColor: '#7109AA'
+              iconLayout: 'default#imageWithContent',
+              iconContentLayout: MyIconContentLayout,
+              iconImageOffset: [-5, -10]
               // Не скрываем иконку при открытом балуне.
               // hideIconOnBalloonOpen: false,
               // И дополнительно смещаем балун, для открытия над иконкой.

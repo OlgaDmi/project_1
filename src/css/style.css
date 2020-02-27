@@ -40,64 +40,57 @@ html, body {
     margin-top: 10px;
 }
 
-/* .map__ballon_top {
-    background: #F46600;
+.fa-small {
     color: white;
-} */
-
-.popover-title .fas {
-    color: white;
-    font-size: 10px;
+    font-size: 15px;
 }
 
-/* .title {
-    margin: 0;
-    font-size: 16px;
-    display: inline-block;
-} */
+.fa-big {
+    color: #3B3B3B;
+    font-size: 55px;
+}
 
-.map__ballon_reviews {
+.reviews {
     overflow: auto;
+    height: 80px;
 }
 
-/* .map__ballon_reviews .item {
+.reviews__item {
+    padding: 5%;
+}
 
-} */
-
-.item_name {
+.reviews__item_name {
     color: #3B3B3B;
-    font-weight: bold;
+    font-size: 18px;
+    line-height: 35px;
+}
+
+.reviews__item_text {
+    color: #3B3B3B;
     font-size: 15px;
 }
 
-.item_place {
-    color: #7F7F7F;
-    font-size: 15px;
-}
-
-.item_text {
-    color: #3B3B3B;
-    font-size: 12px;
-}
-
-.map__ballon_bottom {
+.bottom {
     border-top: 1px solid #A2A2A2;
+    padding: 5%;
+    line-height: 30px;
 }
 
-.bottom_text {
+.bottom__text {
     color: #F46600;
     font-weight: bold;
     font-size: 18px;
     text-transform: uppercase;  
 }
 
-.map__ballon_form input {
+.bottom__form input {
     color: #A2A2A2;
     font-size: 15px;
 }
 
-.map__ballon_form button {
+.bottom__form button {
     color: white;
+    float: right;
     background: #F46600;
     font-size: 11px;
     padding: 2%;
