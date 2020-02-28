@@ -1,7 +1,46 @@
 function mapBuild() {
+
+    // создание обьекта меток
+
+var placemarks = [
+    {
+        latitude: 59.932450,
+        longitude: 30.363605,
+        adress: 'Орловский переулок, 3',
+        name: 'Сергей',
+        place: 'Шоколадница',
+        date: '28.02.2020',
+        text: 'Все печально'
+    }
+    // {
+    //     latitude: 59.94,
+    //     longitude: 30.25,
+    //     hintContent: '<div class="map__hint">Малый проспект В О, д 64</div>',
+    //     balloonContent: [
+    //         '<div class="map__balloon">',
+    //         '<img class="map__burger-img" src="img/burger.png" alt="Бургер"/>',
+    //         'Самые вкусные бургеры у нас! Заходите по адресу: Малый проспект В О, д 64',
+    //         '</div>'
+    //     ]
+    // },
+    // {
+    //     latitude: 59.93,
+    //     longitude: 30.34,
+    //     hintContent: '<div class="map__hint">наб. реки Фонтанки, д. 56</div>',
+    //     balloonContent: [
+    //         '<div class="map__balloon">',
+    //         '<img class="map__burger-img" src="img/burger.png" alt="Бургер"/>',
+    //         'Самые вкусные бургеры у нас! Заходите по адресу: наб. реки Фонтанки, д. 56',
+    //         '</div>'
+    //     ]
+    // }
+],
+    newObjects = [];
+
    ymaps.ready(function () {
+
       // Создание экземпляра карты и его привязка к созданному контейнеру.
-      var myMap = new ymaps.Map('map', {
+      let myMap = new ymaps.Map('map', {
             center: [59.93181443, 30.36136798],
             zoom: 16,
             controls: ['zoomControl', 'fullscreenControl'],
@@ -49,25 +88,7 @@ function mapBuild() {
   
                       this.constructor.superclass.clear.call(this);
                   },
-  
-                  /**
-                   * Метод будет вызван системой шаблонов АПИ при изменении размеров вложенного макета.
-                   * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
-                   * @function
-                   * @name onSublayoutSizeChange
-                   */
-                  onSublayoutSizeChange: function () {
-                      MyBalloonLayout.superclass.onSublayoutSizeChange.apply(this, arguments);
-  
-                      if(!this._isElement(this._$element)) {
-                          return;
-                      }
-  
-                      this.applyElementOffset();
-  
-                      this.events.fire('shapechange');
-                  },
-  
+                  
                   /**
                    * Сдвигаем балун, чтобы "хвостик" указывал на точку привязки.
                    * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/IBalloonLayout.xml#event-userclose
@@ -153,30 +174,103 @@ function mapBuild() {
             ),
   
           // Создание метки с пользовательским макетом балуна.
-          myPlacemark = window.myPlacemark = new ymaps.Placemark(myMap.getCenter(), {
-              balloonHeader: 'Некий адрес',
-              reviews__item_name: 'Сергей',
-              reviews__item_place: 'Шоколадница',
-              date: '27.02.2020',
-              reviews__item_text: 'Все печально'
-          },
-          {
-              balloonShadow: false,
-              balloonLayout: MyBalloonLayout,
-              balloonContentLayout: MyBalloonContentLayout,
-              balloonPanelMaxMapArea: 0,
-              iconLayout: 'default#imageWithContent',
-              iconContentLayout: MyIconContentLayout,
-              iconImageOffset: [-5, -10]
-              // Не скрываем иконку при открытом балуне.
-              // hideIconOnBalloonOpen: false,
-              // И дополнительно смещаем балун, для открытия над иконкой.
-              // balloonOffset: [3, -40]
-          });
+
+    //       myPlacemark = window.myPlacemark = new ymaps.Placemark([59.932450, 30.363605], {
+
+    //           balloonHeader: 'Некий адрес',
+    //           reviews__item_name: 'Сергей',
+    //           reviews__item_place: 'Шоколадница',
+    //           date: '27.02.2020',
+    //           reviews__item_text: 'Все печально'
+    //       },
+    //       {
+    //           balloonShadow: false,
+    //           balloonLayout: MyBalloonLayout,
+    //           balloonContentLayout: MyBalloonContentLayout,
+    //           balloonPanelMaxMapArea: 0,
+    //           iconLayout: 'default#imageWithContent',
+    //           iconImageHref: '',
+    //           iconContentLayout: MyIconContentLayout,
+    //           iconImageOffset: [-15, -50],
+    //           hideIconOnBalloonOpen: false
+    //       });
   
-      myMap.geoObjects.add(myPlacemark);
-  });
-   
+    //   myMap.geoObjects.add(myPlacemark);
+
+
+     myPlacemark = function (newObjects) {
+        for (var i = 0; i < placemarks.length; i++) {
+            console.log(newObjects[i]);
+            newObjects[i] = new ymaps.Placemark([59.932450, 30.363605], {
+                    balloonHeader: 'Некий адрес',
+                    reviews__item_name: 'Сергей',
+                    reviews__item_place: 'Шоколадница',
+                    date: '27.02.2020',
+                    reviews__item_text: 'Все печально'
+                },
+                {
+                    balloonShadow: false,
+                    balloonLayout: MyBalloonLayout,
+                    balloonContentLayout: MyBalloonContentLayout,
+                    balloonPanelMaxMapArea: 0,
+                    iconLayout: 'default#imageWithContent',
+                    iconImageHref: '',
+                    iconContentLayout: MyIconContentLayout,
+                    iconImageOffset: [-15, -50],
+                    hideIconOnBalloonOpen: false
+                }
+                );
+        };
+        return newObjects;
+     }
+
+    var clusterer = new ymaps.Clusterer({
+        clusterIcons: [
+            {
+                href: '',
+                size: [100, 100],
+                offset: [-50, -50]
+            }
+        ],
+        clusterIconContentLayout: null
+    });
+
+    myMap.geoObjects.add(clusterer);
+    clusterer.add(myPlacemark());
+
+    //   myMap.geoObjects.add(myPlacemark(newObjects));
+
+
+//   myPlacemark = function () {
+//       for (var i = 0; i < placemarks.length; i++) {
+//             geoObjects[i] = new ymaps.Placemark([placemarks[i].latitude, placemarks[i].longitude],
+//             {
+//               balloonHeader: placemarks[i].adress,
+//               reviews__item_name: placemarks[i].name,
+//               reviews__item_place: placemarks[i].place,
+//               date: placemarks[i].date,
+//               reviews__item_text: placemarks[i].text
+//             },
+//             {
+//               balloonShadow: false,
+//               balloonLayout: MyBalloonLayout,
+//               balloonContentLayout: MyBalloonContentLayout,
+//               balloonPanelMaxMapArea: 0,
+//               iconLayout: 'default#imageWithContent',
+//               iconImageHref: '',
+//               iconContentLayout: MyIconContentLayout,
+//               iconImageOffset: [-15, -50],
+//               hideIconOnBalloonOpen: false
+//             });
+//         };
+//     return geoObjects;
+//   };
+
+//     myMap.geoObjects.add(myPlacemark);
+
+
+
+   }); 
 }
 
 export {
