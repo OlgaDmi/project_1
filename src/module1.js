@@ -100,7 +100,7 @@ ymaps.ready(function () {
             ymaps.geocode(coords).then(res => {
                 adress = res.geoObjects.get(0).getAddressLine();
             });
-            let baloon = myMap.balloon.open();
+            let baloon = myMap.balloon.open(coords);
             document.addEventListener('click', e => {
                     e.preventDefault();
                     let target = e.target;
@@ -136,8 +136,15 @@ function addReview(coords, adress) {
         newReview.appendChild(newReviewText);
         if(!placemarks.find(item => item.adress == adress)){
             addMark(coords, adress, newReview);
-        } else {
-            placemarks.review.push(newReview);
+        } 
+        else {
+            newReview = document.querySelectorAll('.reviews__item');
+            placemarks.find( // находим первый элемент, который соответствуют условию заданному в передаваемой функции
+                function( item ) {
+                  if (item.adress == adress) {
+                      item.review = newReview;
+                  }
+                });
         }
 
 
@@ -165,10 +172,18 @@ function addMark(coords, adress, newReview) {
     { 
         coords: coords,
         adress: adress,
-        review: [newReview]
+        review: function(newReview) {
+            if(Array.isArray(newReview)) {
+                newReview = newReview.join('');
+                console.log(newReview);
+                return newReview;
+            } else {
+                return newReview;
+            }
+
+        }
     }
     );
-console.log(placemarks);
 newMark();
 }
 
