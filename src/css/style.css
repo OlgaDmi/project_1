@@ -90,3 +90,9 @@ html, body {
     cursor: pointer;
     border-radius: 10%;
 }
+
+.cluster__review.date {
+    right: 0;
+    bottom: 5%;
+    position: absolute;
+}

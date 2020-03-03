@@ -3,12 +3,14 @@ const placemarks = require('./data.json');
 
 ymaps.ready(function () {
     const balloonLayout = ymaps.templateLayoutFactory.createClass(
-        '<div class="popover top">' +
+        '<div class="popover top" id="$[properties.coords]">' +
         '<a class="close" href="#">&times;</a>' +
         '<div class="arrow"></div>' +
         '<div class="popover-inner">' +
             '<h3 class="popover-title"><i class="fa fa-small fa-map-marker" aria-hidden="true"></i>&#8195$[properties.balloonHeader]</h3>' +
-                '<div class="reviews">$[properties.reviews]</div>'+
+                '<div class="reviews">'+
+                '$[properties.review] ' +
+                '</div>'+
                 '<div class="bottom">' +
                 '<div class="bottom__text">Ваш отзыв</div>' +
                 '<form class="bottom__form">' +
@@ -22,7 +24,6 @@ ymaps.ready(function () {
         '</div>', 
         {
             build: function () {
-                console.log('build');
                 this.constructor.superclass.build.call(this);
                 this._$element = $('.popover', this.getParentElement());
                 this.applyElementOffset();
@@ -30,7 +31,6 @@ ymaps.ready(function () {
                 .on('click', $.proxy(this.onCloseClick, this));
             },
             clear: function () {
-                console.log('clear');
                 this._$element.find('.close')
                 .off('click');
                 this.constructor.superclass.clear.call(this);
@@ -42,7 +42,6 @@ ymaps.ready(function () {
                 });
             },
             onCloseClick: function (e) {
-                console.log('onCloseClick');
                 e.preventDefault();
                 this.events.fire('userclose');
             },
@@ -67,9 +66,10 @@ ymaps.ready(function () {
         '<i class="fa fa-big fa-map-marker" aria-hidden="true"></i>'
     );      
     const clasterContentLayout = ymaps.templateLayoutFactory.createClass(`
-        <div class="cluster__header">Заголовок</div>
-        <div class="cluster__link"><a class="search_by_address">{{ properties.adress|raw }}</a></div>
-        <div class=cluster__review>{{ properties.review|raw }}</div>`);
+        <div class="cluster__header"><b>{{ properties.place|raw }}</b></div>
+        <div class="cluster__link"><a href="#{{ properties.coords|raw }}" class="search_by_address">{{ properties.balloonHeader|raw }}</a></div>
+        <div class="cluster__review">{{ properties.text|raw }}</div>
+        <div class="cluster__review date">{{ properties.date|raw }}</div>`);
 
     const clusterer = new ymaps.Clusterer({
         preset: 'islands#invertedVioletClusterIcons', // стили кластера
@@ -89,27 +89,23 @@ ymaps.ready(function () {
         controls: ['zoomControl', 'fullscreenControl']
     }, { balloonLayout });
 
-    // myMap.options.set({ balloonLayout });
-
     myMap.events.add('click', e => {
         let target = e.get('target');
-
-        if (!myMap.balloon.isOpen()) {
-            const coords = e.get('coords');
-            let adress;
-            ymaps.geocode(coords).then(res => {
-                adress = res.geoObjects.get(0).getAddressLine();
-            });
-            let baloon = myMap.balloon.open(coords);
-            document.addEventListener('click', e => {
-                    e.preventDefault();
-                    let target = e.target;
-                    let btn = document.querySelector('form #add_rewiew');
-                    if(target === btn){
-                        addReview(coords, adress);
-                    }
-            })
-        }
+        let coords = e.get('coords');
+        let adress;
+        ymaps.geocode(coords).then(res => {
+            adress = res.geoObjects.get(0).getAddressLine();
+        });
+        let baloon = myMap.balloon.open(coords);
+        document.addEventListener('click', e => {
+            let target = e.target;
+            let btn = document.querySelector('form #add_rewiew');
+            if (target === btn) {
+                console.log('bom');
+                e.preventDefault();
+                addReview(coords, adress);
+            }
+        })
     });
 
 
@@ -119,6 +115,8 @@ function addReview(coords, adress) {
     let place = document.querySelector('form #place').value;
     let comment = document.querySelector('form #comment').value;
     let date = getDate();
+    let header = document.querySelector('.popover-title');
+    header.innerHTML = `<i class="fa fa-small fa-map-marker" aria-hidden="true"></i>&#8195 ${adress}`;
 
     if(name != '' & place != '' & comment != '') {
         let reviews = document.querySelector('.reviews');
@@ -134,20 +132,21 @@ function addReview(coords, adress) {
         reviews.appendChild(newReview);
         newReview.appendChild(newReviewName);
         newReview.appendChild(newReviewText);
-        if(!placemarks.find(item => item.adress == adress)){
-            addMark(coords, adress, newReview);
-        } 
-        else {
-            newReview = document.querySelectorAll('.reviews__item');
-            placemarks.find( // находим первый элемент, который соответствуют условию заданному в передаваемой функции
-                function( item ) {
-                  if (item.adress == adress) {
-                      item.review = newReview;
-                  }
-                });
-        }
+        let review = { name: name, place: place, text: comment, date: date};
 
-
+            addMark(coords, adress, review, place, date, comment);
+            newMark(coords, adress, review, place, date, comment);
+        // if(!placemarks.find(item => item.adress == adress)){
+        //     console.log('other adress');
+        //     // addMark(coords, adress, review, place, date, comment);
+        //     newMark(coords, adress, review, place, date, comment);
+        // } 
+        // else {
+        //      console.log('same adress');
+        //     let item = placemarks.find(item => item.adress == adress);
+        //     // item.review.push(review);
+        //     newMark(coords, adress, review, place, date, comment);
+        // }
     }
 }
 
@@ -167,35 +166,67 @@ function getDate() {
     return newDate;
 }
 
-function addMark(coords, adress, newReview) {
+function addMark(coords, adress, review, place, date, comment) {
     placemarks.push(
     { 
         coords: coords,
         adress: adress,
-        review: function(newReview) {
-            if(Array.isArray(newReview)) {
-                newReview = newReview.join('');
-                console.log(newReview);
-                return newReview;
-            } else {
-                return newReview;
-            }
-
-        }
+        review: [ review ],
+        place:  place,
+        date: date,
+        text: comment
     }
-    );
-newMark();
+    ); 
+
 }
 
-function newMark() {
-        placemarks.forEach(item => {
-        const point = new ymaps.Placemark(item.coords, {
-            balloonHeader: item.adress,
-            review: item.review
-            // reviews__item_name: placemarks[i].name,
-            // reviews__item_place: placemarks[i].place,
-            // date: item.date,
-            // reviews__item_text: placemarks[i].text
+function newMark(coords, adress, review, place, date, comment) {
+    //     placemarks.forEach(item => {
+    //     let arrRev = item.review;
+
+    //     function review(arrRev) {
+    //             let arr = [];
+    //             for (let i = 0; i < arrRev.length; i++) {
+    //                 arr.push(`<div class="reviews__item"><div class="reviews__item_name"><b>${arrRev[i].name}</b> ${arrRev[i].place} ${arrRev[i].date}</div>
+    //                 <div class="reviews__item_text">${arrRev[i].text}</div></div>`);
+    //             }
+    //             return arr.join('');
+    //         };  
+
+    //     let newReview = review(arrRev);      
+    //     const point = new ymaps.Placemark(item.coords, {
+    //         balloonHeader: item.adress,
+    //         review: newReview,
+    //         place: item.review[0].place,
+    //         date: item.review[0].date,
+    //         text: item.review[0].text
+
+    //     }, 
+    //     {
+    //         iconLayout: 'default#imageWithContent',
+    //         iconImageHref: '',
+    //         iconContentLayout: MyIconContentLayout,
+    //         iconImageOffset: [-15, -50]
+    //     }
+    //     );
+    //     console.log(placemarks);
+    //     clusterer.add(point);
+    // });
+        function buildReview(review) {
+                // console.log(review.name);
+                let arr = (`<div class="reviews__item"><div class="reviews__item_name"><b>${review.name}</b> ${review.place} ${review.date}</div>
+                <div class="reviews__item_text">${review.text}</div></div>`);
+                return arr;
+            };  
+
+        let newReview = buildReview(review);      
+        const point = new ymaps.Placemark(coords, {
+            coords: coords,
+            balloonHeader: adress,
+            review: newReview,
+            place: place,
+            date: date,
+            text: comment
         }, 
         {
             iconLayout: 'default#imageWithContent',
@@ -205,74 +236,20 @@ function newMark() {
         }
         );
 
+        console.log(point);
+        console.log(placemarks);
         clusterer.add(point);
-    });
-
     myMap.geoObjects.add(clusterer);
 }
 
+function addA() {
+    let clusterA = document.querySelector('.search_by_address');
+    let coords = ;
+    clusterA.addEventListener('click', e => {
 
+    })
 
-
-    // const myPlacemark = function() {
-    //     for (let i = 0; i < placemarks.length; i++) {
-    //         newMark[i] = new ymaps.Placemark([placemarks[i].latitude, placemarks[i].longitude], {
-    //             balloonHeader: placemarks[i].adress,
-    //             reviews__item_name: placemarks[i].name,
-    //             reviews__item_place: placemarks[i].place,
-    //             date: placemarks[i].date,
-    //             reviews__item_text: placemarks[i].text
-    //         },
-    //         {
-    //             balloonShadow: false,
-    //             balloonLayout: MyBalloonLayout,
-    //             balloonContentLayout: MyBalloonContentLayout,
-    //             balloonPanelMaxMapArea: 0,
-    //             iconLayout: 'default#imageWithContent',
-    //             iconImageHref: '',
-    //             iconContentLayout: MyIconContentLayout,
-    //             iconImageOffset: [-15, -50],
-    //             hideIconOnBalloonOpen: false
-    //         });
-    //         myMap.geoObjects.add(newMark[i]);
-    //     };
-    //  };
-
-    //  myPlacemark();
-
-    // myMap.geoObjects.add(myPlacemark);
-
-
-
-    // const clasterContentLayout = ymaps.templateLayoutFactory.createClass(`
-    //     <div class="cluster__header">Заголовок</div>
-    //     <div class="cluster__link"><a class="search_by_address">{{ properties.address|raw }}</a></div>
-    //     <div class=cluster__review>{{ properties.review|raw }}</div>`
-    // );
-  
-    
-    // placemarks.forEach(item => {
-    //     const mark = new ymaps.Placemark(item.coords, {
-    //         balloonHeader: item.address,
-    //         reviews__item_name: item.name,
-    //         reviews__item_place: item.place,
-    //         date: item.date,
-    //         reviews__item_text: item.text
-    //     }, {
-    //         balloonShadow: false,
-    //         balloonLayout: MyBalloonLayout,
-    //         balloonContentLayout: MyBalloonContentLayout,
-    //         balloonPanelMaxMapArea: 0,
-    //         iconLayout: 'default#imageWithContent',
-    //         iconImageHref: '',
-    //         iconContentLayout: MyIconContentLayout,
-    //         iconImageOffset: [-15, -50],
-    //         hideIconOnBalloonOpen: false
-    //     });
-
-    //     clusterer.add(mark);
-    // });
-
+}
 
 });
 }
