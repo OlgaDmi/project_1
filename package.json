@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "codestyle": "eslint src",
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
     "start": "webpack-dev-server --open",
@@ -17,6 +18,7 @@
     "@babel/preset-env": "^7.8.4",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "html-webpack-plugin": "^3.2.0",
     "json-loader": "^0.5.7",
