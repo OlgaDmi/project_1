@@ -26,6 +26,10 @@ html, body {
     color: white;
     opacity: unset;
 }
+.popover.top .arrow {
+    display: none;
+}
+
 .btn {
     margin-top: 10px;
 }
