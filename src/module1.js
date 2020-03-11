@@ -1,6 +1,6 @@
 function mapBuild() {
-    const placemarks = require('./data.json');
-    let coords, adress;
+    let placemarks = JSON.parse(localStorage.getItem('placemarks')) || [],
+    coords, adress;
 
     ymaps.ready(function () {
         const balloonLayout = ymaps.templateLayoutFactory.createClass(
@@ -72,7 +72,7 @@ function mapBuild() {
         );      
         const clasterContentLayout = ymaps.templateLayoutFactory.createClass(`
             <div class="cluster__header"><b>{{ properties.review_place|raw }}</b></div>
-            <div class="cluster__link"><a href="#" class="search_by_address">{{ properties.review_adress|raw }}</a></div>
+            <div class="cluster__link"><a href="#" class="search_by_address" data-coords="{{ properties.review_coords|raw }}">{{ properties.review_adress|raw }}</a></div>
             <div class="cluster__review">{{ properties.review_text|raw }}</div>
             <div class="cluster__review date">{{ properties.review_date|raw }}</div>`);
 
@@ -88,11 +88,12 @@ function mapBuild() {
             clusterDisableClickZoom: true,
             clusterHideIconOnBalloonOpen: false,
         });
+
         const myMap = new ymaps.Map('map', {
             center: [59.93181443, 30.36136798],
             zoom: 16,
-            controls: ['zoomControl', 'fullscreenControl']
-        }, { balloonLayout });
+            controls: ['zoomControl', 'fullscreenControl'] 
+        }, {yandexMapDisablePoiInteractivity: true, balloonLayout: balloonLayout });
 
         myMap.geoObjects.add(clusterer);
 
@@ -118,7 +119,20 @@ function mapBuild() {
 
         document.addEventListener('click', e => {
             if (e.target.classList.contains('search_by_address')) {
-                myMap.balloon.open(coords);
+                adress = document.querySelector('.search_by_address').innerText;
+                coords = document.querySelector('.search_by_address').getAttribute('data-coords').split(',');
+
+                myMap.balloon.open(coords, {
+                    properties: {
+                        review_adress: adress,
+                    }
+                }).then(function(){
+                    placemarks.forEach(item => {
+                        if (adress == item.review_adress) {
+                            addLastReview(item.review_name, item.review_place, item.review_text, item.review_date);
+                        }
+                    })
+                })
             }
         })        
 
@@ -149,6 +163,22 @@ function mapBuild() {
             }
         }
 
+        function addLastReview(name, place, comment, date) {
+            let reviews = document.querySelector('.reviews');
+            let newReview = document.createElement('div');
+            let newReviewName = document.createElement('div');
+            let newReviewText = document.createElement('div');
+
+            newReview.setAttribute('class', 'reviews__item');
+            newReviewName.setAttribute('class', 'reviews__item_name');
+            newReviewText.setAttribute('class', 'reviews__item_text');
+            newReviewName.innerHTML= `<b>${name}</b> ${place} ${date}`;
+            newReviewText.innerText = comment;
+            reviews.appendChild(newReview);
+            newReview.appendChild(newReviewName);
+            newReview.appendChild(newReviewText);
+        }
+
         function getDate() {
             let newDate = new Date();
             let options = {
@@ -169,7 +199,7 @@ function mapBuild() {
             let input = document.querySelectorAll('form input');
             input.forEach(function(inputItem) {
                 inputItem.value = '';
-              });
+            });
         }
 
         function addMark(coords, adress, review) {
@@ -180,9 +210,10 @@ function mapBuild() {
                     review_name: review.name,
                     review_place: review.place,
                     review_date: review.date,
-                    review_text: review.comment
+                    review_text: review.text
                 }
             ); 
+            localStorage.setItem('placemarks', JSON.stringify(placemarks));
         }
 
         function newMark(coords, adress, review) {  
@@ -192,9 +223,10 @@ function mapBuild() {
                 review_name: review.name,
                 review_place: review.place,
                 review_date: review.date,
-                review_text: review.comment
+                review_text: review.text
             }, 
             {
+                balloonPanelMaxMapArea: 0,
                 iconLayout: 'default#imageWithContent',
                 iconImageHref: '',
                 iconContentLayout: MyIconContentLayout,
@@ -204,6 +236,17 @@ function mapBuild() {
             
             clusterer.add(point);
         }
+
+        function findOldMarks(placemarks) {
+            if (placemarks.length != 0) {
+                placemarks.forEach(object => {
+                    let review = { name: object.review_name, place: object.review_place, text: object.review_text, date: object.review_date };
+                    newMark(object.review_coords, object.review_adress, review)
+                })
+            }
+        }
+
+        findOldMarks(placemarks)
     });
 }
 
