@@ -29,22 +29,23 @@ function mapBuild() {
             {
                 build: function () {
                     this.constructor.superclass.build.call(this);
-                    this._$element = $('.popover', this.getParentElement());
+                    this._$element = document.querySelector('.popover');
                     this.applyElementOffset();
-                    this._$element.find('.close')
-                    .on('click', $.proxy(this.onCloseClick, this));
-
+                    const closeButton = document.querySelector('.close');
+                    closeButton.addEventListener('click', (e) => {
+                        this.onCloseClick(e);
+                    })
                 },
                 clear: function () {
-                    this._$element.find('.close')
-                    .off('click');
                     this.constructor.superclass.clear.call(this);
                 },
                 applyElementOffset: function () {
-                    this._$element.css({
-                        left: -(this._$element[0].offsetWidth / 2),
-                        top: -(this._$element[0].offsetHeight + this._$element.find('.arrow')[0].offsetHeight)
-                    });
+                    let arrow = document.querySelector('.arrow');
+                    let left = -(this._$element.offsetWidth / 2);
+                    let top = -(this._$element.offsetHeight + arrow.offsetHeight);
+
+                    this._$element.style.left = left + 'px';
+                    this._$element.style.top = top + 'px';
                 },
                 onCloseClick: function (e) {
                     e.preventDefault();
@@ -54,17 +55,21 @@ function mapBuild() {
                     if (!this._isElement(this._$element)) {
                         return balloonLayout.superclass.getShape.call(this);
                     }
-                    let position = this._$element.position();
+                    let left = this._$element.style.left.replace('px', '');
+                    let top = this._$element.style.top.replace('px', '');
+                    let arrow = this._$element.querySelector('.arrow');
 
                     return new ymaps.shape.Rectangle(new ymaps.geometry.pixel.Rectangle([
-                        [position.left, position.top], [
-                            position.left + this._$element[0].offsetWidth,
-                            position.top + this._$element[0].offsetHeight + this._$element.find('.arrow')[0].offsetHeight
+                        [+left, +top], [
+                            +left + this._$element.offsetWidth,
+                            +top + this._$element.offsetHeight + arrow.offsetHeight
                         ]
                     ]));
                 },
                 _isElement: function (element) {
-                    return element && element[0] && element.find('.arrow')[0];
+                    let arrow = element.querySelector('.arrow');
+                    return element && arrow;
+                    // return element && element[0] && element.find('.arrow')[0];
                 }
             })
         const MyIconContentLayout = ymaps.templateLayoutFactory.createClass(
