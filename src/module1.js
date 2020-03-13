@@ -12,7 +12,7 @@ function mapBuild() {
             '<div class="reviews">'+  
             '<div class="reviews__item">' +
             '<div class="reviews__item_name"><b>$[properties.review_name]</b> $[properties.review_place] $[properties.review_date]</div>'+
-            '<div class="reviews__item_text">$[properties.text]</div>' +
+            '<div class="reviews__item_text">$[properties.review_text]</div>' +
             '</div>'+
             '</div>'+
             '<div class="bottom">' +
